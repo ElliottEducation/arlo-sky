@@ -1,0 +1,395 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Arlo-Sky connects you to the universe with remote telescopes, stargazing events, and astronomy learning.">
+    <title>Arlo-Sky 🌌 - Connecting You to the Universe</title>
+    <!-- 加载 Stripe.js -->
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        :root {
+            --primary-color: #0a0a2a; /* Deep space blue */
+            --accent-color: #ffd700; /* Gold for stars */
+            --text-color: #ffffff;
+            --bg-color: #000033;
+            --card-bg: #1a1a4d;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background-color: var(--primary-color);
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 1rem;
+        }
+        nav a {
+            color: var(--text-color);
+            text-decoration: none;
+        }
+        .hero {
+            text-align: center;
+            padding: 4rem 1rem;
+            background: linear-gradient(to bottom, var(--primary-color), var(--bg-color));
+        }
+        .hero h1 {
+            font-size: 2.5rem;
+        }
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+        .buttons a, .subscribe-btn {
+            padding: 0.5rem 1rem;
+            background-color: var(--accent-color);
+            color: var(--primary-color);
+            text-decoration: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        section {
+            padding: 2rem 1rem;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        .service-cards, .plan-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        .card {
+            background-color: var(--card-bg);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .event-card {
+            background-color: var(--card-bg);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        .images {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+        .images img {
+            max-width: 200px;
+            border-radius: 8px;
+        }
+        .details {
+            display: flex;
+            justify-content: space-around;
+            gap: 1rem;
+        }
+        .details > div {
+            flex: 1;
+            background-color: var(--card-bg);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        footer {
+            text-align: center;
+            padding: 1rem;
+            background-color: var(--primary-color);
+        }
+        footer nav ul {
+            justify-content: center;
+        }
+        @media (max-width: 768px) {
+            .details {
+                flex-direction: column;
+            }
+            nav ul {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">Arlo-Sky 🌌</div>
+        <nav>
+            <ul>
+                <li><a href="#">Home</a></li>
+                <li><a href="#observatory">Remote Observatory</a></li>
+                <li><a href="#club">Stargazing Club</a></li>
+                <li><a href="#astroscouts">AstroScouts</a></li>
+                <li><a href="#learning">Learning Modes</a></li>
+                <li><a href="#plans">Plans</a></li>
+                <li><a href="#">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <h1>Connecting You to the Universe – Anytime, Anywhere</h1>
+            <p>Explore stars, telescopes, and learning with Arlo-Sky!</p>
+            <div class="buttons">
+                <a href="#observatory" aria-label="Explore Remote Observatory">Explore Remote Observatory</a>
+                <a href="#club" aria-label="Join the Stargazing Club">Join the Club</a>
+            </div>
+        </section>
+
+        <section class="services">
+            <h2>Our Services</h2>
+            <div class="service-cards">
+                <div class="card">
+                    <h3>Remote Observatory</h3>
+                    <p>Access professional telescopes remotely.</p>
+                    <a href="#observatory">Learn More</a>
+                </div>
+                <div class="card">
+                    <h3>Stargazing Club</h3>
+                    <p>Join public star parties and events.</p>
+                    <a href="#club">Learn More</a>
+                </div>
+                <div class="card">
+                    <h3>AstroScouts</h3>
+                    <p>Fun astronomy for kids & Scouts.</p>
+                    <a href="#astroscouts">Learn More</a>
+                </div>
+                <div class="card">
+                    <h3>Learning Modes</h3>
+                    <p>Master astrometry, astrophysics, & more.</p>
+                    <a href="#learning">Learn More</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="events">
+            <h2>Upcoming Events</h2>
+            <div class="event-card">
+                <h3>Perseid Meteor Shower</h3>
+                <p>Aug 12, 2025 – Join us for a night of shooting stars!</p>
+                <a href="#">Details</a>
+            </div>
+        </section>
+
+        <section class="gallery">
+            <h2>Featured Gallery</h2>
+            <div class="images">
+                <img src="https://via.placeholder.com/200" alt="Galaxy" loading="lazy">
+                <img src="https://via.placeholder.com/200" alt="Nebula" loading="lazy">
+                <img src="https://via.placeholder.com/200" alt="Telescope" loading="lazy">
+            </div>
+        </section>
+
+        <section id="observatory" class="observatory">
+            <h2>Remote Observatory</h2>
+            <p>Access professional telescopes remotely (Coming Soon). Try our backyard telescope now!</p>
+            <div class="details">
+                <div class="equipment">
+                    <h3>Equipment</h3>
+                    <ul>
+                        <li>Mount: SkyWatcher EQ6R Pro</li>
+                        <li>Telescope: SharpStar 76EDPH</li>
+                        <li>Control: ZWO ASI Air</li>
+                    </ul>
+                </div>
+                <div class="pricing">
+                    <h3>Pricing</h3>
+                    <p>$7/month for backyard telescope control.</p>
+                    <button class="subscribe-btn" data-price-id="price_1ObservatoryXXX" aria-label="Subscribe to Remote Observatory">Subscribe Now</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="club" class="stargazing-club">
+            <h2>Stargazing Club</h2>
+            <p>Join monthly star parties and celestial events.</p>
+            <div class="details">
+                <div class="event-calendar">
+                    <h3>Event Calendar</h3>
+                    <p>Check our interactive calendar for upcoming events.</p>
+                    <a href="#">View Calendar</a>
+                </div>
+                <div class="membership">
+                    <h3>Membership</h3>
+                    <p>$4/month for priority access & discounts.</p>
+                    <button class="subscribe-btn" data-price-id="price_1ClubXXX" aria-label="Join Stargazing Club">Join Club</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="astroscouts" class="astroscouts">
+            <h2>AstroScouts: Kids Astronomy 🌟</h2>
+            <p>Fun learning for kids & Scouts to earn badges!</p>
+            <div class="details">
+                <div class="constellation-game">
+                    <h3>Constellation Game</h3>
+                    <p>Connect stars to learn constellations!</p>
+                    <button class="subscribe-btn" data-price-id="price_1ConstellationXXX" aria-label="Subscribe to Constellation Game">Play More - $2/month</button>
+                </div>
+                <div class="scavenger-hunt">
+                    <h3>Scavenger Hunt</h3>
+                    <p>Find stars & planets, earn Scout badges.</p>
+                    <a href="#">Download Worksheet</a>
+                    <p>Scout Pack - $10/month</p>
+                    <button class="subscribe-btn" data-price-id="price_1ScoutPackXXX" aria-label="Subscribe to Scout Pack">Subscribe</button>
+                </div>
+                <div class="parent-dashboard">
+                    <h3>Parent Dashboard</h3>
+                    <p>Track progress & download resources.</p>
+                    <p>Family Pack - $6/month</p>
+                    <button class="subscribe-btn" data-price-id="price_1FamilyPackXXX" aria-label="Subscribe to Family Pack">Subscribe</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="learning" class="learning-modes">
+            <h2>Learning Modes</h2>
+            <p>Master astrometry, astrophysics, & astrophotography.</p>
+            <div class="details">
+                <div class="astrometry">
+                    <h3>Astrometry</h3>
+                    <p>Convert coordinates (RA/Dec ↔ Az/Alt).</p>
+                    <button class="subscribe-btn" data-price-id="price_1AstrometryXXX" aria-label="Subscribe to Astrometry">Try - $3/month</button>
+                </div>
+                <div class="astrophysics">
+                    <h3>Astrophysics</h3>
+                    <p>Track asteroids & learn cosmology.</p>
+                    <button class="subscribe-btn" data-price-id="price_1AstrophysicsXXX" aria-label="Subscribe to Astrophysics">Try - $4/month</button>
+                </div>
+                <div class="solar-system">
+                    <h3>3D Solar System</h3>
+                    <p>Explore planets interactively.</p>
+                    <button class="subscribe-btn" data-price-id="price_1SolarSystemXXX" aria-label="Subscribe to 3D Solar System">Try - $4/month</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="plans" class="plans">
+            <h2>Membership Plans</h2>
+            <p>Choose a plan tailored to your needs!</p>
+            <div class="plan-cards">
+                <div class="card">
+                    <h3>Amateur ($4/month)</h3>
+                    <ul>
+                        <li>Sky Events</li>
+                        <li>Constellation Finder</li>
+                    </ul>
+                    <button class="subscribe-btn" data-price-id="price_1AmateurXXX" aria-label="Subscribe to Amateur Plan">Subscribe</button>
+                </div>
+                <div class="card">
+                    <h3>Student ($6/month)</h3>
+                    <ul>
+                        <li>Coordinate Conversion</li>
+                        <li>AstroScouts</li>
+                        <li>Certificates</li>
+                    </ul>
+                    <button class="subscribe-btn" data-price-id="price_1StudentXXX" aria-label="Subscribe to Student Plan">Subscribe</button>
+                </div>
+                <div class="card">
+                    <h3>Scout Group ($10/month)</h3>
+                    <ul>
+                        <li>AstroScouts</li>
+                        <li>Multi-User Access</li>
+                        <li>Scout Materials</li>
+                    </ul>
+                    <button class="subscribe-btn" data-price-id="price_1ScoutGroupXXX" aria-label="Subscribe to Scout Group Plan">Subscribe</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <nav>
+            <ul>
+                <li><a href="#">Home</a></li>
+                <li><a href="#observatory">Observatory</a></li>
+                <li><a href="#astroscouts">AstroScouts</a></li>
+            </ul>
+        </nav>
+        <p>Contact: support@arlo-sky.com</p>
+        <div class="subscribe">
+            <button class="subscribe-btn" data-price-id="price_1GeneralXXX" aria-label="General Subscription">Subscribe</button>
+        </div>
+        <p>© 2025 Arlo-Sky</p>
+    </footer>
+
+    <script>
+        // 初始化 Stripe，替换为您的 Publishable Key
+        const stripe = Stripe('pk_test_YourPublishableKey');
+
+        // 为所有订阅按钮添加点击事件
+        document.querySelectorAll('.subscribe-btn').forEach(button => {
+            button.addEventListener('click', async () => {
+                const priceId = button.getAttribute('data-price-id');
+                try {
+                    const response = await fetch('/api/create-checkout-session', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ priceId }),
+                    });
+                    const { sessionId } = await response.json();
+                    stripe.redirectToCheckout({ sessionId });
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Failed to initiate subscription. Please try again.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
